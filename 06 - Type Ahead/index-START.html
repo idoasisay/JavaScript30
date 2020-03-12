@@ -1,22 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Type Ahead 👀</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Type Ahead 👀</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <form class="search-form">
+      <input type="text" class="search" placeholder="City or State" />
+      <ul class="suggestions">
+        <li>Filter for a city</li>
+        <li>or a state</li>
+      </ul>
+    </form>
+    <script>
+      const endpoint = "https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json";
+      const searchInput = document.querySelector(".search");
+      const suggestions = document.querySelector(".suggestions");
+      let cities = [];
 
-  <form class="search-form">
-    <input type="text" class="search" placeholder="City or State">
-    <ul class="suggestions">
-      <li>Filter for a city</li>
-      <li>or a state</li>
-    </ul>
-  </form>
-<script>
-const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+      // fetch는 promise를 리턴
+      // then은 response 리턴(blob 형태로, 어떤 형식의 데이터인지 정해지져 있지 X)
+      // 데이터의 형태는 여기서 json, blob.json()은 또 다른 promise 필요로 함
+      fetch(endpoint)
+        .then(blob => blob.json())
+        .then(data => cities.push(...data));
+      //.then(data => data.forEach(elem => cities.push(elem)));
 
-</script>
-</body>
+      function findMatches(word, cities) {
+        return cities.filter(place => {
+          // 정규식 이용: g는 전체 범위에서, i는 대소문자 구분X
+          // 정규식 안에 변수 넣는 방법
+          const regex = new RegExp(word, "gi");
+          return place.city.match(regex) || place.state.match(regex);
+        });
+      }
+
+      // 정규식 공부하자
+      function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      }
+
+      function displayMatches() {
+        const matchArr = findMatches(this.value, cities);
+        suggestions.innerHTML = matchArr
+          .map(place => {
+            const regex = new RegExp(this.value, "gi"); // 검색어 하이라이트 효과 위해
+            // regex를 찾아 hl class 달린 span으로 replace
+            const cityName = place.city.replace(regex, `<span class="hl">${this.value}</span>`);
+            const stateName = place.state.replace(regex, `<span class="hl">${this.value}</span>`);
+            return `
+          <li>
+            <span class="name">${cityName}, ${stateName}</span>
+            <span class="population">${numberWithCommas(place.population)}</span>
+          </li>
+        `;
+          })
+          .join("");
+        // map이 array 형태로 리턴되기 때문에 , 없애주려고 join
+      }
+
+      searchInput.addEventListener("change", displayMatches);
+      searchInput.addEventListener("keyup", displayMatches);
+    </script>
+  </body>
 </html>
