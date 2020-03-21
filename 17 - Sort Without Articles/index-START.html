@@ -46,44 +46,26 @@
     <script>
       const bands = ["The Plot in You", "The Devil Wears Prada", "Pierce the Veil", "Norma Jean", "The Bled", "Say Anything", "The Midway State", "We Came as Romans", "Counterparts", "Oh, Sleeper", "A Skylit Drive", "Anywhere But Here", "An Old Dog"];
       const articles = ["A ", "An ", "The "];
-      const array = [];
       const bandList = document.querySelector("#bands");
 
-      function deleteArticles(bands) {
-        return bands.map((band, idx) => {
-          articles.forEach(article => {
-            let obj = {};
-            if (band.indexOf(article) !== -1) {
-              obj[band] = article;
-              band = band.replace(`${article}`, "");
-              array.push(obj);
-            }
-          });
-          return band;
+      // 방법 1
+      // 1. bands 각각의 elem에 적용시킬 관사 떼주는 함수 정의
+      // 2. bands를 알파벳순으로 정렬시 위의 함수 적용시켜 정렬
+      // 3. 화면에 li 표시
+
+      function deleteArticles(band) {
+        articles.forEach(article => {
+          if (band.indexOf(article) !== -1) {
+            band = band.replace(`${article}`, "");
+          }
         });
+        return band;
       }
 
-      function addArticles(newBands) {
-        return newBands.map((band, idx) => {
-          array.forEach(obj => {
-            for (const item in obj) {
-              if (item.indexOf(band) !== -1) {
-                band = item;
-              }
-            }
-          });
-          return band;
-        });
-      }
-
-      function sortBands() {
-        const newBands = deleteArticles(bands);
-        newBands.sort();
-        return addArticles(newBands);
-      }
+      const sortedBands = bands.sort((a, b) => (deleteArticles(a) > deleteArticles(b) ? 1 : -1));
 
       function paintList() {
-        const sortedBands = sortBands();
+        // const sortedBands = sortBands();
         return (bandList.innerHTML = sortedBands
           .map(band => {
             return `<li>${band}</li>`;
@@ -92,6 +74,47 @@
       }
 
       paintList();
+
+      // 방법 2 (처음에 했던 방법)
+      // 1. bands에서 관사들을 다 뗀 새로운 배열 생성
+      // 2. 다시 관사들 붙여줄 때 사용할 정보들 { 원본밴드명: 떼어진 관사 } 형태들의 새 배열로 생성해 저장
+      // 3. 1의 배열에 sort 적용시켜 정렬
+      // 4. 3의 배열에 2의 배열 이용해 다시 관사 붙여줌
+      // 5. 화면에 li 표시
+
+      // const array = [];
+      // function deleteArticles(bands) {
+      //   return bands.map((band, idx) => {
+      //     articles.forEach(article => {
+      //       let obj = {};
+      //       if (band.indexOf(article) !== -1) {
+      //         obj[band] = article;
+      //         band = band.replace(`${article}`, "");
+      //         array.push(obj);
+      //       }
+      //     });
+      //     return band;
+      //   });
+      // }
+
+      // function addArticles(newBands) {
+      //   return newBands.map((band, idx) => {
+      //     array.forEach(obj => {
+      //       for (const item in obj) {
+      //         if (item.indexOf(band) !== -1) {
+      //           band = item;
+      //         }
+      //       }
+      //     });
+      //     return band;
+      //   });
+      // }
+
+      // function sortBands() {
+      //   const newBands = deleteArticles(bands);
+      //   newBands.sort();
+      //   return addArticles(newBands);
+      // }
     </script>
   </body>
 </html>
