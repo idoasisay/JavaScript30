@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Speech Synthesis</title>
-  <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
+  <head>
+    <meta charset="UTF-8" />
+    <title>Speech Synthesis</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Pacifico"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
     <div class="voiceinator">
-
       <h1>The Voiceinator 5000</h1>
 
       <select name="voice" id="voices">
@@ -17,25 +19,63 @@
       </select>
 
       <label for="rate">Rate:</label>
-      <input name="rate" type="range" min="0" max="3" value="1" step="0.1">
+      <input name="rate" type="range" min="0" max="3" value="1" step="0.1" />
 
       <label for="pitch">Pitch:</label>
 
-      <input name="pitch" type="range" min="0" max="2" step="0.1">
+      <input name="pitch" type="range" min="0" max="2" step="0.1" />
       <textarea name="text">Hello! I love JavaScript 👍</textarea>
       <button id="stop">Stop!</button>
       <button id="speak">Speak</button>
-
     </div>
 
-<script>
-  const msg = new SpeechSynthesisUtterance();
-  let voices = [];
-  const voicesDropdown = document.querySelector('[name="voice"]');
-  const options = document.querySelectorAll('[type="range"], [name="text"]');
-  const speakButton = document.querySelector('#speak');
-  const stopButton = document.querySelector('#stop');
-</script>
+    <script>
+      const msg = new SpeechSynthesisUtterance();
+      let voices = [];
+      const voicesDropdown = document.querySelector('[name="voice"]');
+      const options = document.querySelectorAll('[type="range"], [name="text"]');
+      const speakButton = document.querySelector("#speak");
+      const stopButton = document.querySelector("#stop");
 
-</body>
+      msg.text = document.querySelector('[name="text"]').value;
+      // 텍스트박스 안의 메시지를 읽도록 설정
+
+      // 드롭다운 목록에 voice들 추가
+      function populateVoice() {
+        voices = this.getVoices();
+        const voiceOptions = voices
+          .map(voice => {
+            return `<option value="${voice.name}">${voice.name} (${voice.lang})</option>`;
+          })
+          .join("");
+        voicesDropdown.innerHTML = voiceOptions;
+      }
+
+      // 드롭다운 목록에서 선택한 목소리로 설정
+      function setVoice() {
+        msg.voice = voices.find(voice => voice.name === this.value);
+        toggle();
+      }
+
+      // 목록 선택해 음성 나오고 있을 때 다른 목록 선택시 재생중이던 음성 중지되고 바로 다음 음성 재생
+      function toggle(startOver = true) {
+        speechSynthesis.cancel();
+        if (startOver) {
+          speechSynthesis.speak(msg);
+        }
+      }
+
+      function setOption() {
+        msg[this.name] = this.value;
+        toggle();
+      }
+
+      speechSynthesis.addEventListener("voiceschanged", populateVoice);
+      voicesDropdown.addEventListener("change", setVoice);
+      options.forEach(option => option.addEventListener("change", setOption));
+      speakButton.addEventListener("click", toggle);
+      stopButton.addEventListener("click", toggle.bind(null, false));
+      // toggle(false)로 콜백함수를 적으면 이벤트리스너가 페이지 로드된 직후 실행되기 때문에 버튼동작X
+    </script>
+  </body>
 </html>
