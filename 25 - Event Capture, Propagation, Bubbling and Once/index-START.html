@@ -1,48 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Understanding JavaScript's Capture</title>
-</head>
-<body class="bod">
-
-  <div class="one">
-    <div class="two">
-      <div class="three">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Understanding JavaScript's Capture</title>
+  </head>
+  <body class="body">
+    <div class="one">
+      <div class="two">
+        <div class="three"></div>
       </div>
     </div>
-  </div>
 
-<style>
-  html {
-    box-sizing: border-box;
-  }
-  
-  *, *:before, *:after { 
-    box-sizing: inherit; 
-  }
+    <style>
+      html {
+        box-sizing: border-box;
+      }
 
-  div {
-    width: 100%;
-    padding: 100px;
-  }
+      *,
+      *:before,
+      *:after {
+        box-sizing: inherit;
+      }
 
-  .one {
-    background: thistle;
-  }
+      div {
+        width: 100%;
+        padding: 100px;
+      }
 
-  .two {
-    background: mistyrose;
-  }
+      .one {
+        background: thistle;
+      }
 
-  .three {
-    background: coral;
-  }
-</style>
+      .two {
+        background: mistyrose;
+      }
 
-<button></button>
-<script>
+      .three {
+        background: coral;
+      }
+    </style>
 
-</script>
-</body>
+    <button class="button">BUTTON</button>
+    <script>
+      const divs = document.querySelectorAll("div");
+      const button = document.querySelector("button");
+
+      function logText(e) {
+        e.stopPropagation(); // 이벤트 버블링 멈춤
+        console.log(this.classList.value);
+      }
+
+      //divs.forEach(div => div.addEventListener("click", logText));
+      // 가장 바깥 div 클릭시: one
+      // 가운데 div 클릭시: two one
+      // 가장 안쪽 div 클릭시: three two one
+      // 이벤트 버블링: 브라우저는 클릭된 것 찾아내고 그 상위 요소까지 이벤트가 전파됨
+      // 그 상위 요소는 document의 맨 꼭대기까지 전파
+      // 1. 이벤트가 발생하면 브라우저는 '캡쳐' 실행
+      // 캡쳐란 이벤트가 하위요소로 전파되는 것(top-bottom 형태)
+      // 2. 모든 이벤트 캡쳐 실행 후 다시 아래부터 위로 전파(bottom-top 형태): 이벤트 버블링
+
+      divs.forEach(div =>
+        div.addEventListener("click", logText, {
+          capture: true
+        })
+      );
+      // addEventListener의 세번째 인자로 캡쳐 관련된 인자 넘길 수 있음
+      // 이벤트 버블링은 멈춰 있고, 캡쳐링만 허용된 상황: 어떤 div 클릭해도 one
+
+      button.addEventListener("click", logText, {
+        once: true
+      });
+      // 세번째 인자로 once를 넘길 수 있음
+      // once는 이벤트가 한번만 실행된 후 이벤트를 제거시켜줌
+    </script>
+  </body>
 </html>
